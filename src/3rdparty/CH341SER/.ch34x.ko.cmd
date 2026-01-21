@@ -1,0 +1,1 @@
+savedcmd_/home/rpp/3rdparty/CH341SER/ch34x.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/rpp/3rdparty/CH341SER/ch34x.ko /home/rpp/3rdparty/CH341SER/ch34x.o /home/rpp/3rdparty/CH341SER/ch34x.mod.o

@@ -1,0 +1,7 @@
+==> Building LpmsIG1_OpenSourceLib
+OK: LpmsIG1_OpenSourceLib
+
+==> Building ba_optimize
+OK: ba_optimize
+
+==> Building ceres-solver

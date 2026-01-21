@@ -1,0 +1,1 @@
+savedcmd_/home/rpp/3rdparty/CH341SER/Module.symvers :=  scripts/mod/modpost -M -m -a      -o /home/rpp/3rdparty/CH341SER/Module.symvers -T /home/rpp/3rdparty/CH341SER/modules.order -i Module.symvers -e 

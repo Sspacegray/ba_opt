@@ -1,0 +1,28 @@
+Starting >>> ceres-solver
+--- stderr: ceres-solver
+-- Found Eigen version 3.4.0: /usr/share/eigen3/cmake
+-- Enabling use of Eigen as a sparse linear algebra library.
+-- Did not find CUDA, disabling CUDA support.
+-- Building without CUDA.
+-- Found LAPACK library: /usr/lib/x86_64-linux-gnu/liblapack.so;/usr/lib/x86_64-linux-gnu/libblas.so
+-- Found SuiteSparse 7.6.1, building with SuiteSparse.
+-- Building without Apple's Accelerate sparse support.
+-- Found Google Flags (gflags) version 2.2.2: /usr/lib/x86_64-linux-gnu/cmake/gflags
+-- Found Google Log (glog). Assuming glog was built with gflags support as gflags was found. This will make gflags a public dependency of Ceres.
+-- Found Google benchmark library. Building Ceres benchmarks.
+-- Building Ceres as a static library.
+-- Do not build any example.
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    BUILD_SOPHUS_EXAMPLES
+    BUILD_SOPHUS_TESTS
+    GTSAM_BUILD_EXAMPLES
+    GTSAM_BUILD_TESTS
+
+
+---
+Finished <<< ceres-solver [17min 5s]
+
+Summary: 1 package finished [17min 5s]
+  1 package had stderr output: ceres-solver

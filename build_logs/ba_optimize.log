@@ -1,0 +1,54 @@
+Starting >>> ba_optimize
+--- stderr: ba_optimize
+CMake Warning (dev) at /usr/lib/x86_64-linux-gnu/cmake/pcl/Modules/FindFLANN.cmake:45 (find_package):
+  Policy CMP0144 is not set: find_package uses upper-case <PACKAGENAME>_ROOT
+  variables.  Run "cmake --help-policy CMP0144" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  CMake variable FLANN_ROOT is set to:
+
+    /usr
+
+  For compatibility, find_package is ignoring the variable, but code in a
+  .cmake module might still use it.
+Call Stack (most recent call first):
+  /usr/lib/x86_64-linux-gnu/cmake/pcl/PCLConfig.cmake:261 (find_package)
+  /usr/lib/x86_64-linux-gnu/cmake/pcl/PCLConfig.cmake:306 (find_flann)
+  /usr/lib/x86_64-linux-gnu/cmake/pcl/PCLConfig.cmake:570 (find_external_library)
+  /opt/ros/jazzy/share/pcl_conversions/cmake/ament_cmake_export_dependencies-extras.cmake:21 (find_package)
+  /opt/ros/jazzy/share/pcl_conversions/cmake/pcl_conversionsConfig.cmake:41 (include)
+  CMakeLists.txt:22 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    BUILD_EXAMPLES
+    BUILD_SOPHUS_EXAMPLES
+    BUILD_SOPHUS_TESTS
+    GTSAM_BUILD_EXAMPLES
+    GTSAM_BUILD_TESTS
+
+
+In file included from /usr/include/boost/preprocessor/control/if.hpp:18,
+                 from /usr/include/boost/preprocessor/punctuation/comma_if.hpp:18,
+                 from /usr/include/boost/preprocessor/comma_if.hpp:15,
+                 from /usr/include/boost/mpl/aux_/preprocessor/params.hpp:49,
+                 from /usr/include/boost/mpl/aux_/na_spec.hpp:26,
+                 from /usr/include/boost/mpl/not.hpp:20,
+                 from /usr/include/boost/mpl/assert.hpp:17,
+                 from /usr/include/pcl-1.14/pcl/point_struct_traits.h:40,
+                 from /usr/include/pcl-1.14/pcl/type_traits.h:40,
+                 from /usr/include/pcl-1.14/pcl/memory.h:46,
+                 from /usr/include/pcl-1.14/pcl/PCLPointField.h:3,
+                 from /usr/include/pcl-1.14/pcl/conversions.h:46,
+                 from /opt/ros/jazzy/include/pcl_conversions/pcl_conversions/pcl_conversions.h:47,
+                 from /home/suja/rpp_ws/src/slam/fastlio2_ros2/ba_optimize/src/ba_node.cpp:10:
+/usr/include/pcl-1.14/pcl/io/io.h:42:1: note: ‘#pragma message: This header is deprecated. Please include pcl/common/io.h directly. (It will be removed in PCL 1.15)’
+   42 | PCL_DEPRECATED_HEADER(1, 15, "Please include pcl/common/io.h directly.")
+      | ^~~~~~~~~~~~~~~~~~~~~
+---
+Finished <<< ba_optimize [57.6s]
+
+Summary: 1 package finished [57.9s]
+  1 package had stderr output: ba_optimize

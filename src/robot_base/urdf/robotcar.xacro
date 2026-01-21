@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<robot name="robotcar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ======================== 几何/安装参数 ======================== -->
+  <xacro:property name="M_PI" value="3.14159265359"/>
+
+  <!-- 车体尺寸: 长68cm 宽33cm 高30cm -->
+  <xacro:property name="vehicle_length" value="0.68"/>
+  <xacro:property name="vehicle_width"  value="0.33"/>
+  <xacro:property name="vehicle_height" value="0.30"/>
+  <xacro:property name="ground_clearance" value="0.05"/>
+
+  <!-- 车体几何中心离地高度 -->
+  <xacro:property name="base_box_z" value="${vehicle_height}"/>
+  <!-- base_link 在几何中心 -->
+  <xacro:property name="base_link_z_offset" value="${ground_clearance + vehicle_height/2}"/> 
+
+  <!-- 轮子参数 -->
+  <xacro:property name="wheel_radius" value="0.08"/>
+  <xacro:property name="wheel_length" value="0.03"/>
+  <xacro:property name="caster_radius" value="0.04"/>
+  
+  <!-- 轮距参数 -->
+  <!-- 轮子边缘外切线距离前后4cm -->
+  <!-- 半车长 0.34 - 间隙 0.04 - 轮半径 0.08 = 0.22 -->
+  <xacro:property name="wheelbase_half" value="0.22"/>
+  <!-- 左右轮距离 26cm -> 半轮距 0.13 -->
+  <xacro:property name="track_half" value="0.13"/>
+  <!-- 轮子分离距离 (用于ros2_control) -->
+  <xacro:property name="wheel_separation" value="0.26"/>
+
+  <!-- 轮子垂直位置: 假设轮轴在离地 wheel_radius 高度 -->
+  <!-- base_link 高度是 ground_clearance + height/2 = 0.05 + 0.15 = 0.20 -->
+  <!-- 轮子 z 坐标相对 base_link: wheel_radius - base_link_height -->
+  <xacro:property name="wheel_z_offset" value="${wheel_radius - base_link_z_offset}"/>
+
+  <!-- 雷达: Mid-360, 正前方宽边的棱 (前上边缘) -->
+  <!-- x = length/2 = 0.34 -->
+  <!-- z = height/2 = 0.15 -->
+  <xacro:property name="lidar_x" value="0.34"/>
+  <xacro:property name="lidar_y" value="0.0"/>
+  <xacro:property name="lidar_z" value="0.35"/>
+  <!-- 雷达绕Y轴向下旋转45度 - 数据已被 tilt_compensator 摆平，TF 中设为 0 -->
+  <xacro:property name="lidar_pitch" value="0.0"/>
+
+  <!-- ======================== 宏定义 ======================== -->
+  <xacro:macro name="wheel_link" params="name parent_link x_offset y_offset z_offset">
+    <link name="${name}_wheel_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="${M_PI/2} 0 0"/>
+        <geometry>
+          <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+        </geometry>
+        <material name="black">
+            <color rgba="0.1 0.1 0.1 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${M_PI/2} 0 0"/>
+        <geometry>
+          <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.5"/>
+        <inertia ixx="${0.5*(3*wheel_radius*wheel_radius + wheel_length*wheel_length)/12}"
+                 ixy="0" ixz="0"
+                 iyy="${0.5*(3*wheel_radius*wheel_radius + wheel_length*wheel_length)/12}"
+                 iyz="0"
+                 izz="${0.5*wheel_radius*wheel_radius/2}"/>
+      </inertial>
+    </link>
+
+    <joint name="${name}_wheel_joint" type="continuous">
+      <parent link="${parent_link}"/>
+      <child  link="${name}_wheel_link"/>
+      <origin xyz="${x_offset} ${y_offset} ${z_offset}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- ======================== 机器人结构 ======================== -->
+  <link name="base_footprint"/>
+  
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child  link="base_link"/>
+    <origin xyz="0 0 ${base_link_z_offset}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${vehicle_length} ${vehicle_width} ${vehicle_height}"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.2 0.4 0.8 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${vehicle_length} ${vehicle_width} ${vehicle_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="20.0"/>
+      <inertia ixx="${(1/12)*20*(vehicle_width*vehicle_width + vehicle_height*vehicle_height)}"
+               ixy="0" ixz="0"
+               iyy="${(1/12)*20*(vehicle_length*vehicle_length + vehicle_height*vehicle_height)}"
+               iyz="0"
+               izz="${(1/12)*20*(vehicle_length*vehicle_length + vehicle_width*vehicle_width)}"/>
+    </inertial>
+  </link>
+
+  <!-- ======================== 轮子 (4个) ======================== -->
+  <!-- 左前轮 (驱动轮) -->
+  <xacro:wheel_link name="left" parent_link="base_link" 
+                    x_offset="${wheelbase_half}" y_offset="${track_half}" z_offset="${wheel_z_offset}"/>
+  
+  <!-- 右前轮 (驱动轮) -->
+  <xacro:wheel_link name="right" parent_link="base_link" 
+                    x_offset="${wheelbase_half}" y_offset="-${track_half}" z_offset="${wheel_z_offset}"/>
+
+  <!-- ======================== 后置万向轮 ======================== -->
+  <link name="rear_caster_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="${caster_radius}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="${caster_radius}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="rear_caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_caster_link"/>
+    <origin xyz="-${wheelbase_half} 0 ${caster_radius - base_link_z_offset}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Gazebo simulation: Frictionless caster -->
+  <gazebo reference="rear_caster_link">
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- ======================== 传感器 ======================== -->
+  
+  <!-- Lidar: Mid-360 -->
+  <link name="livox_frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="livox_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="livox_frame"/>
+    <!-- Roll=+0.052 (约+3度) 补偿左边向下倾斜,抬起左边 -->
+    <origin xyz="${lidar_x} ${lidar_y} ${lidar_z}" rpy="-0.032 ${lidar_pitch} 0"/>
+  </joint>
+
+  <!-- IMU: 机体中心 -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.02 0.02 0.01"/>
+      </geometry>
+      <material name="green">
+        <color rgba="0.0 1.0 0.0 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ======================== ros2_control ======================== -->
+  <ros2_control name="RobotCar" type="system">
+    <hardware>
+      <plugin>robot_base/RobotCarHardwareInterface</plugin>
+      <param name="serial_port_name">/dev/STM32</param>
+      <param name="serial_baud_rate">115200</param>
+      <param name="wheel_radius">${wheel_radius}</param>
+      <param name="wheel_separation">${wheel_separation}</param>
+      <param name="loop_rate">50</param>
+      <param name="device_timeout">1000</param>
+      <!-- IMU 参数已移除，由独立节点控制 -->
+    </hardware>
+    <joint name="left_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-10.0</param>
+        <param name="max">10.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-10.0</param>
+        <param name="max">10.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <!-- IMU 传感器接口已移除 -->
+  </ros2_control>
+
+</robot>
